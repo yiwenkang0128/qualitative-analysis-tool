@@ -50,8 +50,7 @@ if not texts or len(texts) < 5:
     print(json.dumps({"error": "PDF 内容太少，无法分析"}))
     sys.exit(1)
 
-# 截取全文 (10万字左右，存入数据库用)
-full_doc_text = "\n".join(texts)[:100000]
+full_doc_text = "\n".join(texts)[:120000] # 截取全文
 
 try:
     client = OpenAI(api_key=api_key)
@@ -92,15 +91,17 @@ try:
     )
     
     ai_response = completion.choices[0].message.content
-    result = json.loads(ai_response)
     
-    # 🌟 核心变化：不再保存文件，而是将全文和文件名返回给 Node.js
-    # Node.js 会负责把这些数据存入 PostgreSQL
+    # 🌟 核心修正：确保返回 fullText 和 serverFilename
+    result = json.loads(ai_response)
     result['serverFilename'] = base_filename
     result['fullText'] = full_doc_text 
     
     print(json.dumps(result, ensure_ascii=False))
 
 except Exception as e:
+    import traceback
+    # 打印错误堆栈到 stderr 以便调试
+    traceback.print_exc(file=sys.stderr)
     print(json.dumps({"error": str(e)}))
     sys.exit(1)
