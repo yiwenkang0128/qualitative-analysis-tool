@@ -115,7 +115,10 @@ function UserChat() {
 
   return (
     <div className="flex h-screen bg-gray-50 font-sans text-gray-800 overflow-hidden">
-      <aside className={`${isSidebarOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full'} bg-gray-900 text-white transition-all duration-300 ease-in-out flex flex-col fixed md:relative z-20 h-full shadow-2xl`}>
+      <aside 
+          className={`${isSidebarOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full'} 
+          bg-gray-900 text-white transition-all duration-300 ease-in-out flex flex-col fixed md:relative z-20 h-full shadow-2xl overflow-hidden`}
+      >
         <div className="p-4 flex items-center justify-between border-b border-gray-800">
           <div className="font-bold text-lg flex items-center gap-2 whitespace-nowrap">
             <Sparkles className="w-5 h-5 text-indigo-400" /> <span>History</span>
@@ -148,7 +151,7 @@ function UserChat() {
       <main className="flex-1 flex flex-col h-full w-full relative">
         <header className="h-16 border-b border-gray-200 bg-white flex items-center px-4 justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"><Menu className="w-6 h-6" /></button>
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 cursor-pointer"><Menu className="w-6 h-6" /></button>
             <h1 className="font-serif text-xl font-bold text-indigo-800 tracking-wide hidden sm:block">Anti-Displacement Reader</h1>
           </div>
         </header>

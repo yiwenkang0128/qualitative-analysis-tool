@@ -236,18 +236,38 @@ app.get('/api/admin/users/:userId/docs', authenticateToken, requireAdmin, async 
     res.json(docs);
 });
 
-// 删除用户 (普通管理员不能删除其他管理员)
+// 6. 删除用户 (逻辑升级：保护管理员)
 app.delete('/api/admin/users/:userId', authenticateToken, requireAdmin, async (req, res) => {
-    const targetUser = await prisma.user.findUnique({ where: { id: req.params.userId } });
-    
-    // ✨ 保护机制：如果目标也是管理员，且当前操作者不是超级管理员，则拒绝
-    if (targetUser.role === 'admin' && req.user.email !== ROOT_ADMIN_EMAIL) {
-        return res.status(403).json({ error: '普通管理员无权删除其他管理员' });
-    }
+    try {
+        // 1. 先查询目标用户是谁
+        const targetUser = await prisma.user.findUnique({ 
+            where: { id: req.params.userId } 
+        });
 
-    await prisma.user.delete({ where: { id: req.params.userId } });
-    res.json({ success: true });
+        if (!targetUser) return res.status(404).json({ error: '用户不存在' });
+
+        // 2. 核心保护机制
+        // 如果目标是管理员，且当前操作者不是超级管理员 (ROOT_ADMIN)，则拒绝
+        // (ROOT_ADMIN_EMAIL 在文件头部定义为 'admin@test.com')
+        if (targetUser.role === 'admin' && req.user.email !== ROOT_ADMIN_EMAIL) {
+            return res.status(403).json({ error: '普通管理员无权删除其他管理员' });
+        }
+
+        // 3. 防止自杀 (超级管理员不能删除自己)
+        if (targetUser.email === ROOT_ADMIN_EMAIL) {
+            return res.status(403).json({ error: '无法删除根管理员账户' });
+        }
+
+        // 4. 执行删除
+        await prisma.user.delete({ where: { id: req.params.userId } });
+        res.json({ success: true });
+
+    } catch (e) {
+        console.error("删除用户失败:", e);
+        res.status(500).json({ error: "删除操作失败" });
+    }
 });
+// 7. 删除文档
 
 app.delete('/api/admin/documents/:docId', authenticateToken, requireAdmin, async (req, res) => {
     await prisma.document.delete({ where: { id: req.params.docId } });
