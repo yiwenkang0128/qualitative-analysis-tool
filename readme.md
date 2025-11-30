@@ -62,8 +62,15 @@ pip install openai scikit-learn pandas pdfplumber bertopic
 npx prisma migrate dev --name init
 ```
 6. Run
+
+- start your database service
+```
+brew services start postgresql@14
+```
+
 - cd backend
 ```
+npx prisma studio
 node server.js
 ```
 - cd frontend
